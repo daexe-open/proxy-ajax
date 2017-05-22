@@ -1,11 +1,40 @@
 {
   "name": "jscoder",
-  "version": "1.0.0",
-  "description": "jscoder is an front-end framework to generate javascript",
+  "version": "0.0.1",
+  "description": "jscoder is kind of front-end program framework base on json grammer",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "bin": {
+    "jscoder": "./bin/jscoder"
   },
-  "author": "",
-  "license": "ISC"
+  "scripts": {
+    "build:bin": "rollup -c rollup/config.bin.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chalecao/jscoder.git"
+  },
+  "keywords": [
+    "jscoder",
+    "description",
+    "language",
+    "program",
+    "json"
+  ],
+  "author": "chalecao",
+  "contributors": [
+    {
+      "name": "Chale Cao",
+      "email": "ch19900606@gmail.com"
+    }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chalecao/jscoder/issues"
+  },
+  "homepage": "https://github.com/chalecao/jscoder#readme",
+  "devDependencies": {
+    "opts": "^1.2.6",
+    "rollup": "^0.41.6",
+    "rollup-plugin-buble": "^0.15.0"
+  }
 }
