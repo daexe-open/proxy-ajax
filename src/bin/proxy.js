@@ -30,7 +30,9 @@ parse([{
 
 let port = get('port') || 80;
 let configFilePath = resolve(process.argv[2] || "./.proxy-ajax.config");
-
+let server;
+// 管理连接
+let sockets = [];
 // 新建一个代理 Proxy Server 对象
 var proxy = httpProxy.createProxyServer({});
 // 捕获异常  
@@ -62,7 +64,7 @@ var promise = new Promise(function (resolve, reject) {
 });
 promise.then(function (value) {
         let proxyConfig = JSON.parse(value);
-        var server = require('http').createServer(function (req, res) {
+        server = require('http').createServer(function (req, res) {
             // 在这里可以自定义你的路由分发
             var host = req.headers.host,
                 ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -89,16 +91,42 @@ promise.then(function (value) {
                     }
                 } else {
                     res.writeHead(200, {
-                        'Content-Type': 'text/plain',
+                        'Content-Type': 'text/html',
                         'Access-Control-Allow-Origin': "*"
                     });
-                    res.end('Welcome to proxy ajax server!<br/>star my git repo: <a href="https://github.com/chalecao/proxy-ajax" target="_blank">proxy-ajax</a>');
+                    res.end('<h2 style="color:#333;">Welcome to proxy ajax server!<br/><br/>Star Git repo: <a href="https://github.com/chalecao/proxy-ajax" target="_blank">proxy-ajax</a></h1>');
                 }
             })
 
         });
-
-        console.log("proxy ajax server start succesfully!");
         server.listen(port || proxyConfig.port);
+        server.on("connection", function (socket) {
+            sockets.push(socket);
+            socket.once("close", function () {
+                sockets.splice(sockets.indexOf(socket), 1);
+            });
+        });
+        console.log("proxy ajax server start succesfully on port " + (port || proxyConfig.port) + " !");
+
     },
-    function (error) {});
+    function (error) {
+
+    });
+
+//关闭之前，我们需要手动清理连接池中得socket对象
+function closeServer() {
+    sockets.forEach(function (socket) {
+        socket.destroy();
+    });
+    
+    server.close(function () {
+        console.log("close server, have a nice day!");
+        process.exit();
+    });
+}
+process.on('exit', function () {
+    // closeServer();
+});
+process.on('SIGINT', function () {
+    closeServer();
+});

@@ -1,6 +1,6 @@
 {
   "name": "proxy-ajax",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "proxy-ajax can proxy the axaj request follow your config rules in you project",
   "main": "index.js",
   "bin": {
