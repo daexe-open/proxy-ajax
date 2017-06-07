@@ -70,7 +70,6 @@ promise.then(function (value) {
             console.log("request URL：" + req.url);
 
             proxyConfig.proxy && proxyConfig.proxy.forEach(function (p) {
-
                 if (p.host.find(function (h) {
                         return h == host;
                     })) {
@@ -83,7 +82,7 @@ promise.then(function (value) {
                             target: proxyConfig[frule.routeTo]
                         });
                     } else {
-                        console.log("proxy to ：" + proxyConfig[frule.otherRouteTo]);
+                        console.log("proxy to ：" + proxyConfig[p.otherRouteTo]);
                         proxy.web(req, res, {
                             target: proxyConfig[p.otherRouteTo]
                         });

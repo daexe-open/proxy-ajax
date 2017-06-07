@@ -70,7 +70,6 @@ promise.then(function (value) {
             console.log("request URL：" + req.url);
 
             proxyConfig.proxy && proxyConfig.proxy.forEach((p) => {
-
                 if (p.host.find((h) => {
                         return h == host;
                     })) {
@@ -83,7 +82,7 @@ promise.then(function (value) {
                             target: proxyConfig[frule.routeTo]
                         });
                     } else {
-                        console.log("proxy to ：" + proxyConfig[frule.otherRouteTo]);
+                        console.log("proxy to ：" + proxyConfig[p.otherRouteTo]);
                         proxy.web(req, res, {
                             target: proxyConfig[p.otherRouteTo]
                         });
@@ -93,7 +92,7 @@ promise.then(function (value) {
                         'Content-Type': 'text/plain',
                         'Access-Control-Allow-Origin': "*"
                     });
-                    res.end('Welcome to proxy ajax server!');
+                    res.end('Welcome to proxy ajax server!<br/>star my git repo: <a href="https://github.com/chalecao/proxy-ajax" target="_blank">proxy-ajax</a>');
                 }
             })
 
