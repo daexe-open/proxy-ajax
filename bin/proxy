@@ -1,0 +1,105 @@
+#!/usr/bin/env node
+'use strict';
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var opts = require('opts');
+var path = require('path');
+var pjson = _interopDefault(require('../package.json'));
+var httpProxy = _interopDefault(require('http-proxy'));
+var fs = _interopDefault(require('fs'));
+
+var version = pjson.version;
+
+opts.parse([{
+    short: "v",
+    long: "version",
+    description: "Show the version",
+    required: false,
+    callback: function () {
+        console.log(version);
+        return process.exit(1);
+    }
+}, {
+    short: "p",
+    long: "port",
+    description: "Specify the port",
+    value: true,
+    required: false
+}].reverse(), true);
+
+var port = opts.get('port') || 80;
+var configFilePath = path.resolve(process.argv[2] || "./.proxy-ajax.config");
+
+// 新建一个代理 Proxy Server 对象
+var proxy = httpProxy.createProxyServer({});
+// 捕获异常  
+proxy.on('error', function (err, req, res) {
+    res.writeHead(500, {
+        'Content-Type': 'text/plain'
+    });
+    res.end('Something went wrong. And we are reporting a custom error message.');
+});
+
+var promise = new Promise(function (resolve$$1, reject) {
+    fs.stat(configFilePath, function (err, stats) {
+        if (err) {
+            console.log(".proxy-ajax.config file not found in dir ./");
+            reject("error");
+            return;
+        }
+        if (stats.isFile()) {
+            fs.readFile(configFilePath, function (err, data) {
+                if (err) {
+                    console.log(".proxy-ajax.config read error");
+                    reject("error");
+                    return;
+                }
+                resolve$$1(data);
+            });
+        }
+    });
+});
+promise.then(function (value) {
+        var proxyConfig = JSON.parse(value);
+        var server = require('http').createServer(function (req, res) {
+            // 在这里可以自定义你的路由分发
+            var host = req.headers.host,
+                ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+            console.log("client ip: " + ip + ", host: " + host);
+            console.log("request URL：" + req.url);
+
+            proxyConfig.proxy && proxyConfig.proxy.forEach(function (p) {
+
+                if (p.host.find(function (h) {
+                        return h == host;
+                    })) {
+                    var frule = p.rule.find(function (r) {
+                        return (req.url.indexOf(r.path) != -1)
+                    });
+                    if (frule) {
+                        console.log("proxy to ：" + proxyConfig[frule.routeTo]);
+                        proxy.web(req, res, {
+                            target: proxyConfig[frule.routeTo]
+                        });
+                    } else {
+                        console.log("proxy to ：" + proxyConfig[frule.otherRouteTo]);
+                        proxy.web(req, res, {
+                            target: proxyConfig[p.otherRouteTo]
+                        });
+                    }
+                } else {
+                    res.writeHead(200, {
+                        'Content-Type': 'text/plain',
+                        'Access-Control-Allow-Origin': "*"
+                    });
+                    res.end('Welcome to proxy ajax server!');
+                }
+            });
+
+        });
+
+        console.log("proxy ajax server start succesfully!");
+        server.listen(port || proxyConfig.port);
+    },
+    function (error) {});
