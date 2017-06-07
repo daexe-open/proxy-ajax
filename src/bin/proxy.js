@@ -120,13 +120,14 @@ function closeServer() {
     });
     
     server.close(function () {
-        console.log("close server, have a nice day!");
-        process.exit();
+        console.log("close server, done!");
+        process.exit(1);
     });
 }
 process.on('exit', function () {
-    // closeServer();
+    console.log("exit, have a nice day!");
 });
 process.on('SIGINT', function () {
     closeServer();
+    process.exit(1);
 });
