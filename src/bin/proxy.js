@@ -28,8 +28,12 @@ parse([{
     required: false
 }].reverse(), true);
 
-let port = get('port') || 80;
+let port = get('port');
+
 let configFilePath = resolve(process.argv[2] || "./.proxy-ajax.config");
+if (process.argv[2] == "-p") {
+    configFilePath = resolve("./.proxy-ajax.config");
+}
 let server;
 // 管理连接
 let sockets = [];
@@ -44,6 +48,7 @@ proxy.on('error', function (err, req, res) {
 });
 
 var promise = new Promise(function (resolve, reject) {
+    console.log(configFilePath)
     fs.stat(configFilePath, function (err, stats) {
         if (err) {
             console.log(".proxy-ajax.config file not found in dir ./");
@@ -118,7 +123,7 @@ function closeServer() {
     sockets.forEach(function (socket) {
         socket.destroy();
     });
-    
+
     server.close(function () {
         console.log("close server, done!");
         process.exit(1);
