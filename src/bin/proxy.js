@@ -86,12 +86,14 @@ promise.then(function (value) {
                     if (frule) {
                         console.log("proxy to ：" + proxyConfig[frule.routeTo]);
                         proxy.web(req, res, {
-                            target: proxyConfig[frule.routeTo]
+                            target: proxyConfig[frule.routeTo],
+                            changeOrigin: true
                         });
                     } else {
                         console.log("proxy to ：" + proxyConfig[p.otherRouteTo]);
                         proxy.web(req, res, {
-                            target: proxyConfig[p.otherRouteTo]
+                            target: proxyConfig[p.otherRouteTo],
+                            changeOrigin: true
                         });
                     }
                 } else {
@@ -99,7 +101,7 @@ promise.then(function (value) {
                         'Content-Type': 'text/html',
                         'Access-Control-Allow-Origin': "*"
                     });
-                    res.end('<h2 style="color:#333;">Welcome to proxy ajax server!<br/><br/>Star Git repo: <a href="https://github.com/chalecao/proxy-ajax" target="_blank">proxy-ajax</a></h1>');
+                    res.end('<h2 style="color:#333;">Welcome to proxy ajax server!</h1>');
                 }
             })
 

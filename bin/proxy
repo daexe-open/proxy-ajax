@@ -91,7 +91,8 @@ promise.then(function (value) {
                     } else {
                         console.log("proxy to ：" + proxyConfig[p.otherRouteTo]);
                         proxy.web(req, res, {
-                            target: proxyConfig[p.otherRouteTo]
+                            target: proxyConfig[p.otherRouteTo],
+                            changeOrigin: true
                         });
                     }
                 } else {
