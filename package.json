@@ -1,6 +1,6 @@
 {
   "name": "proxy-ajax",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "proxy-ajax can proxy the axaj request follow your config rules in you project",
   "main": "index.js",
   "bin": {
@@ -30,6 +30,7 @@
   },
   "homepage": "https://github.com/chalecao/proxy-ajax#readme",
   "dependencies": {
+    "colors": "^1.1.2",
     "http-proxy": "^1.16.2",
     "opts": "^1.2.6"
   },

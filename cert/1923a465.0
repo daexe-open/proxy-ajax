@@ -1,0 +1,99 @@
+-----BEGIN CERTIFICATE-----
+MIIDrTCCApWgAwIBAgIJAJFIhoi5gv6jMA0GCSqGSIb3DQEBBQUAMFMxCzAJBgNV
+BAYTAkNOMREwDwYDVQQIDAhaaGVKaWFuZzERMA8GA1UEBwwISGFuZ1pob3UxEDAO
+BgNVBAoMB0FsaWJhYmExDDAKBgNVBAMMA3RhcDAeFw0xNTA4MDYwMzM5MzNaFw0x
+NjA4MDUwMzM5MzNaMFMxCzAJBgNVBAYTAkNOMREwDwYDVQQIDAhaaGVKaWFuZzER
+MA8GA1UEBwwISGFuZ1pob3UxEDAOBgNVBAoMB0FsaWJhYmExDDAKBgNVBAMMA3Rh
+cDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAN5ifN8pWzUFfwAHSq8d
+X81ithAESdtLcfpfCg3PT0ey06xFBpxhUeqtZMc9jAA5rXYyw1l5vnfYSEHH1nVk
+MPuuqALL5oSo0ELcGEZjGW9QKH5fCFlLphiLUpptZpkJQkBHIrnecCGwyaTAkymL
+/kN283vBOh1j17GK8eNHWYexxQHoxlGad95HWe8O+US83IQHn9pSh6ZZ9pYxS30C
+4cLn/NOUv0MCWR93GuT4ftqULMM2vrfoKAmnA7PKoh9eqkp1K4ZZUy++uO5yxKZx
+glUPNGCiq/svQmmJNJbf0NanSzW7UZcpQJT9MSwC1O2bQB7K7ngRym1xc44r+GF2
+VkkCAwEAAaOBgzCBgDAMBgNVHRMEBTADAQH/MHAGA1UdEQRpMGeCDnRlc3QudG1h
+bGwuY29tghR0ZXN0LmRhaWx5LnRtYWxsLm5ldIIKZy50YmNkbi5jboIZZy5hc3Nl
+dHMuZGFpbHkudGFvYmFvLm5ldIIMZy5hbGljZG4uY29thwR/AAABhwTAqAEBMA0G
+CSqGSIb3DQEBBQUAA4IBAQBuuw5kLA8CfFm6E/r4MVK7Pf/fgOwUQ1Pf14zELJFX
+z7FJpMG8SgB8m5p/oV/rcZbsuz3t/3ahqNx1a+6/wN4CVjhvpl5elr3g5BA7be9o
+kFUc7buH3wg4tmGdx/P2C52JnVOdMhleSnRJKSHRaiN5n6aXg7Qq4lXH2ifDddnC
+DYfOL1oqA8t+5KigBQL+rCWMbCSSAPogyvuuAvy0ZIcX9GuFdwXBheoZEjiGH1Iq
+IwiNYl3zpZ3NV54qrzbAwWb4GYGs4+LjvB71IjLwPbTIXAa5Q8k7F12W88TcoTfL
+5XsgsTeOGd+shjcaE70Z9PZlC2hVtirv6jFY5dujwwQA
+-----END CERTIFICATE-----
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            91:48:86:88:b9:82:fe:a3
+        Signature Algorithm: sha1WithRSAEncryption
+        Issuer: C=CN, ST=ZheJiang, L=HangZhou, O=Alibaba, CN=tap
+        Validity
+            Not Before: Aug  6 03:39:33 2015 GMT
+            Not After : Aug  5 03:39:33 2016 GMT
+        Subject: C=CN, ST=ZheJiang, L=HangZhou, O=Alibaba, CN=tap
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+            RSA Public Key: (2048 bit)
+                Modulus (2048 bit):
+                    00:de:62:7c:df:29:5b:35:05:7f:00:07:4a:af:1d:
+                    5f:cd:62:b6:10:04:49:db:4b:71:fa:5f:0a:0d:cf:
+                    4f:47:b2:d3:ac:45:06:9c:61:51:ea:ad:64:c7:3d:
+                    8c:00:39:ad:76:32:c3:59:79:be:77:d8:48:41:c7:
+                    d6:75:64:30:fb:ae:a8:02:cb:e6:84:a8:d0:42:dc:
+                    18:46:63:19:6f:50:28:7e:5f:08:59:4b:a6:18:8b:
+                    52:9a:6d:66:99:09:42:40:47:22:b9:de:70:21:b0:
+                    c9:a4:c0:93:29:8b:fe:43:76:f3:7b:c1:3a:1d:63:
+                    d7:b1:8a:f1:e3:47:59:87:b1:c5:01:e8:c6:51:9a:
+                    77:de:47:59:ef:0e:f9:44:bc:dc:84:07:9f:da:52:
+                    87:a6:59:f6:96:31:4b:7d:02:e1:c2:e7:fc:d3:94:
+                    bf:43:02:59:1f:77:1a:e4:f8:7e:da:94:2c:c3:36:
+                    be:b7:e8:28:09:a7:03:b3:ca:a2:1f:5e:aa:4a:75:
+                    2b:86:59:53:2f:be:b8:ee:72:c4:a6:71:82:55:0f:
+                    34:60:a2:ab:fb:2f:42:69:89:34:96:df:d0:d6:a7:
+                    4b:35:bb:51:97:29:40:94:fd:31:2c:02:d4:ed:9b:
+                    40:1e:ca:ee:78:11:ca:6d:71:73:8e:2b:f8:61:76:
+                    56:49
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:TRUE
+            X509v3 Subject Alternative Name: 
+                DNS:test.tmall.com, DNS:test.daily.tmall.net, DNS:g.tbcdn.cn, DNS:g.assets.daily.taobao.net, DNS:g.alicdn.com, IP Address:127.0.0.1, IP Address:192.168.1.1
+    Signature Algorithm: sha1WithRSAEncryption
+        6e:bb:0e:64:2c:0f:02:7c:59:ba:13:fa:f8:31:52:bb:3d:ff:
+        df:80:ec:14:43:53:df:d7:8c:c4:2c:91:57:cf:b1:49:a4:c1:
+        bc:4a:00:7c:9b:9a:7f:a1:5f:eb:71:96:ec:bb:3d:ed:ff:76:
+        a1:a8:dc:75:6b:ee:bf:c0:de:02:56:38:6f:a6:5e:5e:96:bd:
+        e0:e4:10:3b:6d:ef:68:90:55:1c:ed:bb:87:df:08:38:b6:61:
+        9d:c7:f3:f6:0b:9d:89:9d:53:9d:32:19:5e:4a:74:49:29:21:
+        d1:6a:23:79:9f:a6:97:83:b4:2a:e2:55:c7:da:27:c3:75:d9:
+        c2:0d:87:ce:2f:5a:2a:03:cb:7e:e4:a8:a0:05:02:fe:ac:25:
+        8c:6c:24:92:00:fa:20:ca:fb:ae:02:fc:b4:64:87:17:f4:6b:
+        85:77:05:c1:85:ea:19:12:38:86:1f:52:2a:23:08:8d:62:5d:
+        f3:a5:9d:cd:57:9e:2a:af:36:c0:c1:66:f8:19:81:ac:e3:e2:
+        e3:bc:1e:f5:22:32:f0:3d:b4:c8:5c:06:b9:43:c9:3b:17:5d:
+        96:f3:c4:dc:a1:37:cb:e5:7b:20:b1:37:8e:19:df:ac:86:37:
+        1a:13:bd:19:f4:f6:65:0b:68:55:b6:2a:ef:ea:31:58:e5:db:
+        a3:c3:04:00
+-----BEGIN CERTIFICATE-----
+MIIDrTCCApWgAwIBAgIJAJFIhoi5gv6jMA0GCSqGSIb3DQEBBQUAMFMxCzAJBgNV
+BAYTAkNOMREwDwYDVQQIDAhaaGVKaWFuZzERMA8GA1UEBwwISGFuZ1pob3UxEDAO
+BgNVBAoMB0FsaWJhYmExDDAKBgNVBAMMA3RhcDAeFw0xNTA4MDYwMzM5MzNaFw0x
+NjA4MDUwMzM5MzNaMFMxCzAJBgNVBAYTAkNOMREwDwYDVQQIDAhaaGVKaWFuZzER
+MA8GA1UEBwwISGFuZ1pob3UxEDAOBgNVBAoMB0FsaWJhYmExDDAKBgNVBAMMA3Rh
+cDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAN5ifN8pWzUFfwAHSq8d
+X81ithAESdtLcfpfCg3PT0ey06xFBpxhUeqtZMc9jAA5rXYyw1l5vnfYSEHH1nVk
+MPuuqALL5oSo0ELcGEZjGW9QKH5fCFlLphiLUpptZpkJQkBHIrnecCGwyaTAkymL
+/kN283vBOh1j17GK8eNHWYexxQHoxlGad95HWe8O+US83IQHn9pSh6ZZ9pYxS30C
+4cLn/NOUv0MCWR93GuT4ftqULMM2vrfoKAmnA7PKoh9eqkp1K4ZZUy++uO5yxKZx
+glUPNGCiq/svQmmJNJbf0NanSzW7UZcpQJT9MSwC1O2bQB7K7ngRym1xc44r+GF2
+VkkCAwEAAaOBgzCBgDAMBgNVHRMEBTADAQH/MHAGA1UdEQRpMGeCDnRlc3QudG1h
+bGwuY29tghR0ZXN0LmRhaWx5LnRtYWxsLm5ldIIKZy50YmNkbi5jboIZZy5hc3Nl
+dHMuZGFpbHkudGFvYmFvLm5ldIIMZy5hbGljZG4uY29thwR/AAABhwTAqAEBMA0G
+CSqGSIb3DQEBBQUAA4IBAQBuuw5kLA8CfFm6E/r4MVK7Pf/fgOwUQ1Pf14zELJFX
+z7FJpMG8SgB8m5p/oV/rcZbsuz3t/3ahqNx1a+6/wN4CVjhvpl5elr3g5BA7be9o
+kFUc7buH3wg4tmGdx/P2C52JnVOdMhleSnRJKSHRaiN5n6aXg7Qq4lXH2ifDddnC
+DYfOL1oqA8t+5KigBQL+rCWMbCSSAPogyvuuAvy0ZIcX9GuFdwXBheoZEjiGH1Iq
+IwiNYl3zpZ3NV54qrzbAwWb4GYGs4+LjvB71IjLwPbTIXAa5Q8k7F12W88TcoTfL
+5XsgsTeOGd+shjcaE70Z9PZlC2hVtirv6jFY5dujwwQA
+-----END CERTIFICATE-----

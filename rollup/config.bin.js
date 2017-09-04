@@ -5,7 +5,7 @@ export default {
     dest: 'bin/proxy',
     format: 'cjs',
     banner: '#!/usr/bin/env node',
-    external: ['opts', 'pjson', 'path','http-proxy','fs'],
+    external: ['opts', 'pjson', 'path','http-proxy','fs','colors'],
     paths: {
         pjson: '../package.json'
     },

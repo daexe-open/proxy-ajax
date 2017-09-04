@@ -1,0 +1,23 @@
+[req]
+distinguished_name = req_distinguished_name
+req_extensions = v3_req
+prompt = no
+[ req_distinguished_name ]
+countryName              = CN
+stateOrProvinceName      = ZheJiang
+localityName             = HangZhou
+organizationName         = Alibaba
+organizationalUnitName   = Inc
+commonName               = Tap
+
+[ v3_req ]
+# Extensions to add to a certificate request
+basicConstraints = CA:false
+# keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = *.tmall.com
+DNS.2 = *.daily.tmall.net
+DNS.3 = *.daily.taobao.net
+DNS.4 = *.alicdn.com

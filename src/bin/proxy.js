@@ -8,7 +8,9 @@ import {
 import pjson from "pjson";
 import httpProxy from 'http-proxy';
 import fs from 'fs';
-
+import httpsProxy from './httpsProxy'
+import { request, connect } from "./util"
+import colors from 'colors'
 let version = pjson.version;
 
 parse([{
@@ -30,15 +32,16 @@ parse([{
 
 let port = get('port');
 
-let configFilePath = resolve(process.argv[2] || "./.proxy-ajax.config");
+let configFilePath = resolve(process.argv[2] || "./.proxy-ajax.config.js");
 if (process.argv[2] == "-p") {
-    configFilePath = resolve("./.proxy-ajax.config");
+    configFilePath = resolve("./.proxy-ajax.config.js");
 }
 let server;
 // 管理连接
 let sockets = [];
 // 新建一个代理 Proxy Server 对象
 var proxy = httpProxy.createProxyServer({});
+
 // 捕获异常  
 proxy.on('error', function (err, req, res) {
     res.writeHead(500, {
@@ -46,78 +49,116 @@ proxy.on('error', function (err, req, res) {
     });
     res.end('Something went wrong. And we are reporting a custom error message.');
 });
-
-var promise = new Promise(function (resolve, reject) {
-    console.log(configFilePath)
-    fs.stat(configFilePath, function (err, stats) {
-        if (err) {
-            console.log(".proxy-ajax.config file not found in dir ./");
-            reject("error");
-            return;
+//根据路径获取数据
+function getData(configFilePath) {
+    return new Promise(function (resolve, reject) {
+        //如果是数据文件内容，直接返回
+        if (configFilePath.match("{")) {
+            resolve(configFilePath);
         }
-        if (stats.isFile()) {
-            fs.readFile(configFilePath, function (err, data) {
+        else if(configFilePath.match(".js")) {
+            //如果是数据文件，需要加载
+            console.log("import config file from " + configFilePath)
+            delete require.cache[require.resolve(configFilePath)];
+            resolve(require(configFilePath));
+
+        } else {
+            //不能require，需要使用文件读取
+            console.log("read config file from " + configFilePath)
+            fs.stat(configFilePath, function (err, stats) {
                 if (err) {
-                    console.log(".proxy-ajax.config read error");
+                    console.log(".proxy-ajax.config file not found in dir ./");
                     reject("error");
                     return;
                 }
-                resolve(data);
-            })
+                if (stats.isFile()) {
+                    fs.readFile(configFilePath, function (err, data) {
+                        if (err) {
+                            console.log(".proxy-ajax.config read error");
+                            reject("error");
+                            return;
+                        }
+                        resolve(data);
+                    })
+                }
+            });
         }
     });
-});
-promise.then(function (value) {
-        let proxyConfig = JSON.parse(value);
-        server = require('http').createServer(function (req, res) {
-            // 在这里可以自定义你的路由分发
-            var host = req.headers.host,
-                ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-            console.log("client ip: " + ip + ", host: " + host);
-            console.log("request URL：" + req.url);
+}
+//根据配置初始化代理
+getData(configFilePath).then(function (value) {
 
-            proxyConfig.proxy && proxyConfig.proxy.forEach((p) => {
-                if (p.host.find((h) => {
-                        return h == host;
-                    })) {
-                    let frule = p.rule.find((r) => {
-                        return (req.url.indexOf(r.path) != -1)
-                    });
-                    if (frule) {
-                        console.log("proxy to ：" + proxyConfig[frule.routeTo]);
-                        proxy.web(req, res, {
-                            target: proxyConfig[frule.routeTo],
-                            changeOrigin: true
+    let proxyConfig = (typeof value == "object") ? value : JSON.parse(value);
+    proxyConfig = proxyConfig.proxyConfig || proxyConfig;
+    server = require('http').createServer(function (req, res) {
+
+        // 在这里可以自定义你的路由分发
+        var host = req.headers.host,
+            rurl = req.url,
+            ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        console.log("");
+        console.log('client ip: '.blue + ip + ' , host: '.green + host);
+        console.log("request URL: ".cyan + rurl);
+
+        let p = proxyConfig.proxy.reverse().find(function (p) {
+            var rule = new RegExp(p.path);
+            return p.path && rule.exec(rurl);
+        });
+        if (p) {
+            console.log("find rule for above url!".yellow)
+            if (p.data) {
+                getData(resolve(p.data)).then(function (value) {
+                    let callbackName = new RegExp("callback=(.*)&", "g").exec(req.url);
+                    if (callbackName && callbackName[1]) {
+                        console.log("jsonp match given data! ".red);
+                        res.writeHead(200, {
+                            'Content-Type': 'application/json'
                         });
+                        res.end(callbackName[1] + "(" + JSON.stringify(value) + ")");
                     } else {
-                        console.log("proxy to ：" + proxyConfig[p.otherRouteTo]);
-                        proxy.web(req, res, {
-                            target: proxyConfig[p.otherRouteTo],
-                            changeOrigin: true
+                        console.log("ajax match given data! ".red);
+                        res.writeHead(200, {
+                            'Content-Type': 'application/json'
                         });
+                        res.end(JSON.stringify(value));
+
                     }
-                } else {
-                    res.writeHead(200, {
-                        'Content-Type': 'text/html',
-                        'Access-Control-Allow-Origin': "*"
-                    });
-                    res.end('<h2 style="color:#333;">Welcome to proxy ajax server!</h1>');
-                }
-            })
+                })
 
-        });
-        server.listen(port || proxyConfig.port);
-        server.on("connection", function (socket) {
-            sockets.push(socket);
-            socket.once("close", function () {
-                sockets.splice(sockets.indexOf(socket), 1);
-            });
-        });
-        console.log("proxy ajax server start succesfully on port " + (port || proxyConfig.port) + " !");
+            } else if (p.routeTo) {
+                console.log("proxy to: ".red + proxyConfig[p.routeTo]);
+                proxy.web(req, res, {
+                    target: proxyConfig[p.routeTo],
+                    changeOrigin: true
+                });
+            } else {
+                request(req, res)
+            }
+        } else {
+            request(req, res)
+        }
 
-    },
+    });
+    server.listen((port || proxyConfig.port));
+    server.on("connection", function (socket) {
+        sockets.push(socket);
+        socket.once("close", function () {
+            sockets.splice(sockets.indexOf(socket), 1);
+        });
+    });
+    server.on('connect', function (cReq, cSock) {
+        console.log("");
+        console.log("connect ".yellow + cReq.url);
+        connect(cReq, cSock);
+    });
+    if (proxyConfig.httpsPort) {
+        httpsProxy(proxyConfig);
+    }
+    console.log("proxy ajax server start succesfully on port " + (port || proxyConfig.port) + " !");
+
+},
     function (error) {
-
+        console.log(error)
     });
 
 //关闭之前，我们需要手动清理连接池中得socket对象
@@ -125,14 +166,13 @@ function closeServer() {
     sockets.forEach(function (socket) {
         socket.destroy();
     });
-
     server.close(function () {
         console.log("close server, done!");
         process.exit(1);
     });
 }
 process.on('exit', function () {
-    console.log("exit, have a nice day!");
+    console.log("welcome back, have a nice day!");
 });
 process.on('SIGINT', function () {
     closeServer();
