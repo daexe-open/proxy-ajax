@@ -1,5 +1,5 @@
 ## proxy-ajax
-proxy-ajax can proxy the axaj request follow your config rules in you project. it's easy to proxy you project to test your files.
+proxy-ajax can proxy the axaj request follow your config rules in you project. it's easy to proxy you project to test your program. it can also be used as http proxy, if your want to proxy your iphone or android network from your conputer, you can run the proxy-ajax, and the set the http proxy in you wifi setting.
 
 ## usage
 ```
@@ -62,6 +62,14 @@ export default {
     }
     ....
 }
+```
+when it runs, you will see the proxy information in the console:
+```
+client ip: ::ffff:30.7.27.202 , host: iosapps.itunes.apple.com
+request URL: http://iosapps.itunes.apple.com/apple-assets-us-std-000001/Purple111/v4/f2/a1/d3/f2a
+
+connect g-assets.daily.taobao.net:443
+......
 ```
 
 ## changelog
