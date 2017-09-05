@@ -5,6 +5,7 @@ import {
 import {
     resolve
 } from "path";
+// import url from "url";
 import pjson from "pjson";
 import httpProxy from 'http-proxy';
 import fs from 'fs';
@@ -41,7 +42,10 @@ let server;
 let sockets = [];
 // 新建一个代理 Proxy Server 对象
 var proxy = httpProxy.createProxyServer({});
-
+proxy.on('proxyReq', function(proxyReq, req, res, options) {
+    proxyReq.setHeader('X-Special-Proxy-Header', 'tap');
+    proxyReq.setHeader('X-WH-REQUEST-URI', req._originUrl);
+  });
 // 捕获异常  
 proxy.on('error', function (err, req, res) {
     res.writeHead(500, {
@@ -90,6 +94,7 @@ getData(configFilePath).then(function (value) {
 
     let proxyConfig = (typeof value == "object") ? value : JSON.parse(value);
     proxyConfig = proxyConfig.proxyConfig || proxyConfig;
+    let _proxy = proxyConfig.proxy.reverse();
     server = require('http').createServer(function (req, res) {
 
         // 在这里可以自定义你的路由分发
@@ -98,13 +103,14 @@ getData(configFilePath).then(function (value) {
             ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
         console.log("");
         console.log('client ip: '.blue + ip + ' , host: '.green + host);
-        console.log("request URL: ".cyan + rurl);
-
-        let p = proxyConfig.proxy.reverse().find(function (p) {
+        console.log("request URL: ".cyan + rurl );
+        
+        let p = _proxy.find(function (p) {
             var rule = new RegExp(p.path);
-            return p.path && rule.exec(rurl);
+            return rule.exec(rurl) && p.path;
         });
         if (p) {
+
             console.log("find rule for above url!".yellow)
             if (p.data) {
                 getData(resolve(p.data)).then(function (value) {
@@ -127,9 +133,10 @@ getData(configFilePath).then(function (value) {
 
             } else if (p.routeTo) {
                 console.log("proxy to: ".red + proxyConfig[p.routeTo]);
+                // 设置req
+                req._originUrl = req.url;
                 proxy.web(req, res, {
-                    target: proxyConfig[p.routeTo],
-                    changeOrigin: true
+                    target: proxyConfig[p.routeTo]
                 });
             } else {
                 request(req, res)

@@ -10,7 +10,7 @@ module.exports = {
     "target-static": "http://127.0.0.1:8000",
     "proxy": [{
         "path": "h5/",
-        "data": JSON.stringify(data)
+        "routeTo": "target-mtop"
     }, {
         "path": "/h5/mtop.tmall.supermarket.city.timeline.get",
         "data": JSON.stringify(data)

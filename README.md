@@ -51,7 +51,7 @@ export default {
         "target-static": "http://127.0.0.1:8000",
         "proxy": [{
             "path": "/h5/",
-            "target": "target-mtop"
+            "routeTo": "target-mtop"
         },{
             "path": "/h5/jianribimai",
             "data": "./src/demo/data/new3.js"
