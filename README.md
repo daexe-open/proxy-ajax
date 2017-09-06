@@ -25,12 +25,8 @@ export default {
     "target-mtop": "https://x.x.x.x/",
     "target-other": "http://baidu.com",
     "proxy": [{
-        "host": ["localhost:8889", "api.baidu.com"],
-        "rule": [{
-            "path": "getBaidu",
-            "routeTo": "target-mtop"
-        }],
-        "otherRouteTo": "target-other"
+        "path": "getBaidu",
+        "routeTo": "target-mtop"
     }]
 }
 ```
