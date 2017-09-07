@@ -132,12 +132,21 @@ getData(configFilePath).then(function (value) {
                 })
 
             } else if (p.routeTo) {
-                console.log("proxy to: ".red + proxyConfig[p.routeTo]);
-                // 设置req
-                req._originUrl = req.url;
-                proxy.web(req, res, {
-                    target: proxyConfig[p.routeTo]
-                });
+                if(p.routeTo.match("//")){
+                    console.log("proxy to: ".red + p.routeTo);
+                    // 设置req
+                    req._originUrl = req.url;
+                    proxy.web(req, res, {
+                        target: p.routeTo
+                    });
+                }else{
+                    console.log("proxy to: ".red + proxyConfig[p.routeTo]);
+                    // 设置req
+                    req._originUrl = req.url;
+                    proxy.web(req, res, {
+                        target: proxyConfig[p.routeTo]
+                    });
+                }
             } else {
                 request(req, res)
             }

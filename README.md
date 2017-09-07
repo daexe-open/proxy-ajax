@@ -49,6 +49,9 @@ module.exports = {
             "path": "/h5/",
             "routeTo": "target-mtop"
         },{
+            "path": "/h6/",
+            "routeTo": "http://xxxxx/data.json"
+        },{
             "path": "/h5/jianribimai",
             "data": "./src/demo/data/new3.js"
         },{
@@ -69,6 +72,8 @@ connect g-assets.daily.taobao.net:443
 ```
 
 ## changelog
+### 20170907 release 1.0.0
+1. add route to http data directly support.
 ### 20170904 release 0.0.8
 1. add https support.
 2. support proxy http request to data, youcan set the data or just the data path.
