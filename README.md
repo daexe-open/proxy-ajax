@@ -5,7 +5,7 @@ proxy-ajax can proxy the axaj request follow your config rules in you project. i
 ```
 npm install proxy-ajax -g
 -------you can specify the config file path and port---
-proxy-ajax ./.proxy-ajax.config -p 80
+proxy-ajax ./.proxy-ajax.config.js -p 80
 
 ------- you can use the default config path and port---
 proxy-ajax
@@ -17,7 +17,7 @@ config file eample:
 ```
 .proxy-ajax.config.js file:
 --------------------------
-export default {
+module.exports = {
     "port": 8889,
     //"httpsPort": 8890, 
     //"cert": "", //https cert
@@ -35,7 +35,7 @@ if you don't want write many config file in your project, you can also write you
 xxxx.config.js file:
 --------------------------
 var data = require("./data")
-export default {
+module.exports = {
     .....
     .....
     proxyConfig:{
