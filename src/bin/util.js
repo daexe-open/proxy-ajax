@@ -2,14 +2,14 @@ var http = require('http');
 var net = require('net'); 
 var url = require('url'); 
 
-export let request =  function request(cReq, cRes) {
-    var u = url.parse(cReq.url);
+export let request =  function request(cReq, cRes, rqurl) {
+    var u = url.parse(rqurl || Req.url);
     var options = {
         hostname: u.hostname,
         port: u.port || 80,
         path: u.path,
         method: cReq.method,
-        headers: cReq.headers
+        headers: rqurl?"":cReq.headers
     };
 
     var pReq = http.request(options, function (pRes) {

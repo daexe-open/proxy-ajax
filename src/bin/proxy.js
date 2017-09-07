@@ -133,12 +133,15 @@ getData(configFilePath).then(function (value) {
 
             } else if (p.routeTo) {
                 if(p.routeTo.match("//")){
-                    console.log("proxy to: ".red + p.routeTo);
+                    let targetUrl = p.routeTo;
+                    let callbackName = new RegExp("callback=(.*)&", "g").exec(req.url);
+                    if (callbackName && callbackName[1]) {
+                        console.log("jsonp match given data! ".red);
+                        targetUrl += "?callback="+callbackName[1];
+                    }
+                    console.log("proxy to: ".red + targetUrl);
                     // 设置req
-                    req._originUrl = req.url;
-                    proxy.web(req, res, {
-                        target: p.routeTo
-                    });
+                    request(req, res, targetUrl)
                 }else{
                     console.log("proxy to: ".red + proxyConfig[p.routeTo]);
                     // 设置req
