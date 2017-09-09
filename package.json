@@ -7,7 +7,7 @@
     "proxy-ajax": "./bin/proxy"
   },
   "scripts": {
-    "build:bin": "rollup -c rollup/config.bin.js"
+    "build": "rollup -c rollup/config.bin.js"
   },
   "repository": {
     "type": "git",

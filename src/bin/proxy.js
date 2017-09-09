@@ -58,7 +58,7 @@ function getData(configFilePath) {
     return new Promise(function (resolve, reject) {
         //如果是数据文件内容，直接返回
         if (configFilePath.match("{")) {
-            resolve(configFilePath);
+            resolve(JSON.parse(configFilePath));
         }
         else if(configFilePath.match(".js")) {
             //如果是数据文件，需要加载
@@ -113,7 +113,19 @@ getData(configFilePath).then(function (value) {
 
             console.log("find rule for above url!".yellow)
             if (p.data) {
-                getData(resolve(p.data)).then(function (value) {
+                let _data = "";
+                if(typeof p.data == 'object'){
+                    //如果 data值为 {xx:yy} 这种
+                    _data = JSON.stringify(p.data);
+                }else if(typeof p.data == 'string' && p.data.match("{")){
+                    //如果 data值为 ‘{xx:yy}’ 这种
+                    _data = p.data;
+                }else{
+                    //如果 data值为 “./data/.data.js” 这种
+                    _data = resolve(p.data)
+                }
+                getData(_data).then(function (value) {
+
                     let callbackName = new RegExp("callback=(.*)&", "g").exec(req.url);
                     if (callbackName && callbackName[1]) {
                         console.log("jsonp match given data! ".red);
