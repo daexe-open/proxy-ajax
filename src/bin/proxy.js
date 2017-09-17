@@ -42,10 +42,15 @@ let server;
 let sockets = [];
 // 新建一个代理 Proxy Server 对象
 var proxy = httpProxy.createProxyServer({});
-proxy.on('proxyReq', function(proxyReq, req, res, options) {
+proxy.on('proxyReq', function (proxyReq, req, res, options) {
     proxyReq.setHeader('X-Special-Proxy-Header', 'tap');
     proxyReq.setHeader('X-WH-REQUEST-URI', req._originUrl);
-  });
+});
+proxy.on('proxyRes', function (proxyRes, req, res) {
+    proxyRes.headers['Access-Control-Allow-Origin'] = '*';
+    proxyRes.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept';
+    proxyRes.headers['Access-Control-Allow-Methods'] = 'PUT,POST,GET,DELETE,OPTIONS';
+});
 // 捕获异常  
 proxy.on('error', function (err, req, res) {
     res.writeHead(500, {
@@ -60,7 +65,7 @@ function getData(configFilePath) {
         if (configFilePath.match("{")) {
             resolve(JSON.parse(configFilePath));
         }
-        else if(configFilePath.match(".js")) {
+        else if (configFilePath.match(".js")) {
             //如果是数据文件，需要加载
             console.log("import config file from " + configFilePath)
             delete require.cache[require.resolve(configFilePath)];
@@ -103,8 +108,8 @@ getData(configFilePath).then(function (value) {
             ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
         console.log("");
         console.log('client ip: '.blue + ip + ' , host: '.green + host);
-        console.log("request URL: ".cyan + rurl );
-        
+        console.log("request URL: ".cyan + rurl);
+
         let p = _proxy.find(function (p) {
             var rule = new RegExp(p.path);
             return rule.exec(rurl) && p.path;
@@ -114,13 +119,13 @@ getData(configFilePath).then(function (value) {
             console.log("find rule for above url!".yellow)
             if (p.data) {
                 let _data = "";
-                if(typeof p.data == 'object'){
+                if (typeof p.data == 'object') {
                     //如果 data值为 {xx:yy} 这种
                     _data = JSON.stringify(p.data);
-                }else if(typeof p.data == 'string' && p.data.match("{")){
+                } else if (typeof p.data == 'string' && p.data.match("{")) {
                     //如果 data值为 ‘{xx:yy}’ 这种
                     _data = p.data;
-                }else{
+                } else {
                     //如果 data值为 “./data/.data.js” 这种
                     _data = resolve(p.data)
                 }
@@ -144,17 +149,17 @@ getData(configFilePath).then(function (value) {
                 })
 
             } else if (p.routeTo) {
-                if(p.routeTo.match("//")){
+                if (p.routeTo.match("//")) {
                     let targetUrl = p.routeTo;
                     let callbackName = new RegExp("callback=(.*)&", "g").exec(req.url);
                     if (callbackName && callbackName[1]) {
                         console.log("jsonp match given data! ".red);
-                        targetUrl += "?callback="+callbackName[1];
+                        targetUrl += "?callback=" + callbackName[1];
                     }
                     console.log("proxy to: ".red + targetUrl);
                     // 设置req
                     request(req, res, targetUrl)
-                }else{
+                } else {
                     console.log("proxy to: ".red + proxyConfig[p.routeTo]);
                     // 设置req
                     req._originUrl = req.url;

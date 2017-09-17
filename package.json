@@ -7,7 +7,8 @@
     "proxy-ajax": "./bin/proxy"
   },
   "scripts": {
-    "build": "rollup -c rollup/config.bin.js"
+    "build": "rollup -c rollup/config.bin.js",
+    "getca": "node rootca.js"
   },
   "repository": {
     "type": "git",
@@ -35,6 +36,7 @@
     "opts": "^1.2.6"
   },
   "devDependencies": {
+    "mkdirp": "^0.5.1",
     "rollup": "^0.41.6",
     "rollup-plugin-buble": "^0.15.0"
   }

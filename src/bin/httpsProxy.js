@@ -9,10 +9,16 @@ import {
 const PORT = 443
 
 let proxyServer = httpProxy.createProxyServer()
-proxyServer.on('proxyReq', function(proxyReq, req, res, options) {
+proxyServer.on('proxyReq', function (proxyReq, req, res, options) {
     proxyReq.setHeader('X-Special-Proxy-Header', 'tap');
-    proxyReq.setHeader('X-WH-REQUEST-URI', req._originUrl);
-  });
+    proxyReq.setHeader('X-WH-REQUEST-URI', req._originUrl || "");
+});
+
+proxyServer.on('proxyRes', function (proxyRes, req, res) {
+    proxyRes.headers['Access-Control-Allow-Origin'] = '*';
+    proxyRes.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept';
+    proxyRes.headers['Access-Control-Allow-Methods'] = 'PUT,POST,GET,DELETE,OPTIONS';
+});
 
 proxyServer.on('proxyReq', (proxyReq, req) => {
     req._proxyReq = proxyReq;
@@ -27,14 +33,15 @@ proxyServer.on('error', (err, req, res) => {
 export default function (proxyConfig) {
     const SECURE_OPTIONS = {
         // ca: [
-        //     fs.readFileSync(resolve('./cert/server.csr'))
+        //     fs.readFileSync(resolve(join(__dirname,'../localhost-cert/server.csr')))
         // ],
-        cert: fs.readFileSync(resolve(proxyConfig.cert || join(__dirname,'../localhost-cert/server.crt')), 'utf-8'),
-        key: fs.readFileSync(resolve(proxyConfig.key || join(__dirname,'../localhost-cert/server.key')), 'utf-8'),
+        cert: fs.readFileSync(resolve(proxyConfig.cert || join(__dirname, '../localhost-cert/server.crt')), 'utf-8'),
+        key: fs.readFileSync(resolve(proxyConfig.key || join(__dirname, '../localhost-cert/server.key')), 'utf-8'),
         requestCert: false,
         rejectUnauthorized: false
     }
     https.createServer(SECURE_OPTIONS, function (req, res) {
+
         // 在这里可以自定义你的路由分发
         var host = req.headers.host,
             rurl = "https://" + req.headers.host + req.url,
