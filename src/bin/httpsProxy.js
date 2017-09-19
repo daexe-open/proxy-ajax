@@ -48,12 +48,15 @@ export default function (proxyConfig) {
             ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
         console.log('client ip: '.blue + ip + ' , host: '.green + host);
         console.log("request URL: ".cyan + rurl);
-        let p = proxyConfig.proxy.reverse().find(function (p) {
-            var rule = new RegExp(p.path);
-            return p.path && rule.exec(rurl);
+        let p = "";
+        proxyConfig.proxy.forEach(function (_p) {
+            var rule = new RegExp(_p.path);
+            if( _p.path && rule.exec(rurl)){
+                p = _p;
+            }
         });
         if (p) {
-            console.log("find rule for above url!")
+            console.log("find rule for above url!".yellow)
             if (p.data) {
                 //jsonp
                 let callbackName = new RegExp("callback=(.*)&", "g").exec(req.url);

@@ -99,7 +99,7 @@ getData(configFilePath).then(function (value) {
 
     let proxyConfig = (typeof value == "object") ? value : JSON.parse(value);
     proxyConfig = proxyConfig.proxyConfig || proxyConfig;
-    let _proxy = proxyConfig.proxy.reverse();
+    let _proxy = proxyConfig.proxy;
     server = require('http').createServer(function (req, res) {
 
         // 在这里可以自定义你的路由分发
@@ -109,11 +109,14 @@ getData(configFilePath).then(function (value) {
         console.log("");
         console.log('client ip: '.blue + ip + ' , host: '.green + host);
         console.log("request URL: ".cyan + rurl);
-
-        let p = _proxy.find(function (p) {
-            var rule = new RegExp(p.path);
-            return rule.exec(rurl) && p.path;
+        let p = "";
+        _proxy.forEach(function (_p) {
+            var rule = new RegExp(_p.path);
+            if (rule.exec(rurl) && _p.path) {
+                p = _p;
+            }
         });
+        console.log(p);
         if (p) {
 
             console.log("find rule for above url!".yellow)

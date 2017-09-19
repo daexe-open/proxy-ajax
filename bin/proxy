@@ -93,12 +93,15 @@ var httpsProxy = function (proxyConfig) {
             ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
         console.log('client ip: '.blue + ip + ' , host: '.green + host);
         console.log("request URL: ".cyan + rurl);
-        var p = proxyConfig.proxy.reverse().find(function (p) {
-            var rule = new RegExp(p.path);
-            return p.path && rule.exec(rurl);
+        var p = "";
+        proxyConfig.proxy.forEach(function (_p) {
+            var rule = new RegExp(_p.path);
+            if( _p.path && rule.exec(rurl)){
+                p = _p;
+            }
         });
         if (p) {
-            console.log("find rule for above url!");
+            console.log("find rule for above url!".yellow);
             if (p.data) {
                 //jsonp
                 var callbackName = new RegExp("callback=(.*)&", "g").exec(req.url);
@@ -220,7 +223,7 @@ getData(configFilePath).then(function (value) {
 
     var proxyConfig = (typeof value == "object") ? value : JSON.parse(value);
     proxyConfig = proxyConfig.proxyConfig || proxyConfig;
-    var _proxy = proxyConfig.proxy.reverse();
+    var _proxy = proxyConfig.proxy;
     server = require('http').createServer(function (req, res) {
 
         // 在这里可以自定义你的路由分发
@@ -230,11 +233,14 @@ getData(configFilePath).then(function (value) {
         console.log("");
         console.log('client ip: '.blue + ip + ' , host: '.green + host);
         console.log("request URL: ".cyan + rurl);
-
-        var p = _proxy.find(function (p) {
-            var rule = new RegExp(p.path);
-            return rule.exec(rurl) && p.path;
+        var p = "";
+        _proxy.forEach(function (_p) {
+            var rule = new RegExp(_p.path);
+            if (rule.exec(rurl) && _p.path) {
+                p = _p;
+            }
         });
+        console.log(p);
         if (p) {
 
             console.log("find rule for above url!".yellow);
