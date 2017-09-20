@@ -63,13 +63,19 @@ export default function (proxyConfig) {
                 if (callbackName && callbackName[1]) {
                     console.log("jsonp match given data! ".red);
                     res.writeHead(200, {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Headers':'Origin, X-Requested-With, Content-Type, Accept',
+                        'Access-Control-Allow-Methods': 'PUT,POST,GET,DELETE,OPTIONS'
                     });
                     res.end(callbackName[1] + "(" + p.data + ")");
                 } else {
                     console.log("ajax match given data! ".red);
                     res.writeHead(200, {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Headers':'Origin, X-Requested-With, Content-Type, Accept',
+                        'Access-Control-Allow-Methods': 'PUT,POST,GET,DELETE,OPTIONS'
                     });
                     res.end(p.data);
 
