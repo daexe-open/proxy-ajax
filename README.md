@@ -53,6 +53,7 @@ module.exports = {
             "routeTo": "http://xxxxx/data.json"
         },{
             "path": "/h5/jianribimai",
+            "origin": "http://localhost:3000",
             "data": "./src/demo/data/new3.js"
         },{
             "path": "/h5/test",
@@ -72,10 +73,15 @@ connect g-assets.daily.taobao.net:443
 ```
 
 ## changelog
+### 20170923 release 1.0.7
+1. add CORS config by default, if the data is mocked in local, you should specify the origin instead of *.
 ### 20170907 release 1.0.0
 1. add route to http data directly support.
 ### 20170904 release 0.0.8
-1. add https support.
+1. add https support. default cert is https://127.0.0.1 root cert, you can also generate you root cert with 
+```
+node rootca.js
+```
 2. support proxy http request to data, youcan set the data or just the data path.
 
 ### 20170701 release 0.0.7
