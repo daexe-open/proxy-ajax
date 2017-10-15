@@ -10,18 +10,116 @@ var httpProxy = _interopDefault(require('http-proxy'));
 var fs = _interopDefault(require('fs'));
 var colors = _interopDefault(require('colors'));
 
-var http = require('http'); 
-var net = require('net'); 
-var url = require('url'); 
+var http = require('http');
+var net = require('net');
+var url = require('url');
+var fs$2 = require('fs');
+var currentDir = process.cwd();
+var handleRequest = function (request, response, defa) {
 
-var request =  function request(cReq, cRes, rqurl) {
+    var urlObject = url.parse(request.url, true);
+    var pathname = decodeURIComponent(urlObject.pathname);
+    console.log('[' + (new Date()).toUTCString() + '] ' + '"' + request.method + ' ' + pathname + '"');
+
+    var filePath = path.join(currentDir, pathname);
+
+    fs$2.stat(filePath, function (err, stats) {
+        if (err) {
+            response.writeHead(404, {});
+            response.end('File not found!');
+            return;
+        }
+
+        if (stats.isFile()) {
+            fs$2.readFile(filePath, function (err, data) {
+                if (err) {
+                    response.writeHead(404, {});
+                    response.end('Opps. Resource not found');
+                    return;
+                }
+
+                if (filePath.indexOf("svg") > 0) {
+                    response.writeHead(200, {
+                        'Content-Type': 'image/svg+xml; charset=utf-8'
+                    });
+                } else {
+                    response.writeHead(200, {
+                        "Access-Control-Allow-Origin": "*",
+                        "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+                        "Access-Control-Allow-Methods": "PUT,POST,GET,DELETE,OPTIONS"
+                    });
+                }
+                response.write(data);
+                response.end();
+            });
+
+        } else if (stats.isDirectory()) {
+            var filePathIndex = path.join(currentDir, pathname, defa);
+            fs$2.exists(filePathIndex, function (exists) {
+                if (exists) {
+                    fs$2.readFile(filePathIndex, function (err, data) {
+                        if (err) {
+                            response.writeHead(404, {});
+                            response.end('Opps. Resource not found');
+                            return;
+                        }
+                        response.writeHead(200, {
+                            "Access-Control-Allow-Origin": "*",
+                            "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+                            "Access-Control-Allow-Methods": "PUT,POST,GET,DELETE,OPTIONS"
+                        });
+                        response.write(data);
+                        response.end();
+                    });
+                } else {
+                    fs$2.readdir(filePath, function (error, files) {
+                        if (error) {
+                            response.writeHead(500, {});
+                            response.end();
+                            return;
+                        }
+                        var l = pathname.length;
+                        if (pathname.substring(l - 1) != '/') { pathname += '/'; }
+
+
+                        response.writeHead(200, {
+                            'Content-Type': 'text/html'
+                        });
+                        response.write('<!DOCTYPE html>\n<html><head><meta charset="UTF-8"><title>' + filePath + '</title></head><body>');
+                        response.write('<h1>' + filePath + '</h1>');
+                        response.write('<ul style="list-style:none;font-family:courier new;">');
+                        files.unshift('.', '..');
+                        files.forEach(function (item) {
+
+                            var urlpath, itemStats;
+                            urlpath = pathname + item;
+                            itemStats = fs$2.statSync(currentDir + urlpath);
+
+                            if (itemStats.isDirectory()) {
+                                urlpath += '/';
+                                item += '/';
+                            }
+
+                            response.write('<li><a href="' + urlpath + '">' + item + '</a></li>');
+                        });
+
+                        response.end('</ul></body></html>');
+                    });
+                }
+            });
+        }
+    });
+
+};
+
+var request = function request(cReq, cRes, rqurl) {
     var u = url.parse(rqurl || cReq.url);
     var options = {
         hostname: u.hostname,
         port: u.port || 80,
         path: u.path,
         method: cReq.method,
-        headers: rqurl?"":cReq.headers
+        headers: rqurl ? "" : cReq.headers
     };
 
     var pReq = http.request(options, function (pRes) {
@@ -35,7 +133,7 @@ var request =  function request(cReq, cRes, rqurl) {
 
 };
 
-var connect = function(cReq, cSock) {
+var connect = function (cReq, cSock) {
     var u = url.parse('http://' + cReq.url);
     var pSock = net.connect(u.port, u.hostname, function () {
         cSock.write('HTTP/1.1 200 Connection Established\r\n\r\n');
@@ -60,6 +158,7 @@ proxyServer.on('proxyReq', function (proxyReq, req, res, options) {
 });
 
 proxyServer.on('proxyRes', function (proxyRes, req, res) {
+    
     proxyRes.headers['Access-Control-Allow-Origin'] = '*';
     proxyRes.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept';
     proxyRes.headers['Access-Control-Allow-Methods'] = 'PUT,POST,GET,DELETE,OPTIONS';
@@ -86,7 +185,6 @@ var httpsProxy = function (proxyConfig) {
         rejectUnauthorized: false
     };
     https.createServer(SECURE_OPTIONS, function (req, res) {
-
         // 在这里可以自定义你的路由分发
         var host = req.headers.host,
             rurl = "https://" + req.headers.host + req.url,
@@ -143,33 +241,8 @@ var httpsProxy = function (proxyConfig) {
     }).listen(proxyConfig.httpsPort || PORT, function () { return console.log("https server run at " + proxyConfig.httpsPort || PORT); });
 };
 
-// import url from "url";
-var version = pjson.version;
-
-opts.parse([{
-    short: "v",
-    long: "version",
-    description: "Show the version",
-    required: false,
-    callback: function () {
-        console.log(version);
-        return process.exit(1);
-    }
-}, {
-    short: "p",
-    long: "port",
-    description: "Specify the port",
-    value: true,
-    required: false
-}].reverse(), true);
-
-var port = opts.get('port');
-
-var configFilePath = path.resolve(process.argv[2] || "./.proxy-ajax.config.js");
-if (process.argv[2] == "-p") {
-    configFilePath = path.resolve("./.proxy-ajax.config.js");
-}
 var server;
+var httpServer;
 // 管理连接
 var sockets = [];
 // 新建一个代理 Proxy Server 对象
@@ -226,134 +299,173 @@ function getData(configFilePath) {
         }
     });
 }
-//根据配置初始化代理
-getData(configFilePath).then(function (value) {
 
-    var proxyConfig = (typeof value == "object") ? value : JSON.parse(value);
-    proxyConfig = proxyConfig.proxyConfig || proxyConfig;
-    var _proxy = proxyConfig.proxy;
-    server = require('http').createServer(function (req, res) {
+var proxy$1 = function (configFilePath, port) {
+    //根据配置初始化代理
+    getData(configFilePath).then(function (value) {
 
-        // 在这里可以自定义你的路由分发
-        var host = req.headers.host,
-            rurl = req.url,
-            ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-        console.log("");
-        console.log('client ip: '.blue + ip + ' , host: '.green + host);
-        console.log("request URL: ".cyan + rurl);
-        var p = "";
-        _proxy.forEach(function (_p) {
-            var rule = new RegExp(_p.path);
-            if (rule.exec(rurl) && _p.path) {
-                p = _p;
-            }
-        });
-        console.log(p);
-        if (p) {
+        var proxyConfig = (typeof value == "object") ? value : JSON.parse(value);
+        proxyConfig = proxyConfig.proxyConfig || proxyConfig;
 
-            console.log("find rule for above url!".yellow);
-            if (p.data) {
-                var _data = "";
-                if (typeof p.data == 'object') {
-                    //如果 data值为 {xx:yy} 这种
-                    _data = JSON.stringify(p.data);
-                } else if (typeof p.data == 'string' && p.data.match("{")) {
-                    //如果 data值为 ‘{xx:yy}’ 这种
-                    _data = p.data;
-                } else {
-                    //如果 data值为 “./data/.data.js” 这种
-                    _data = path.resolve(p.data);
+        if (proxyConfig.serverPort) {
+            httpServer = require('http').createServer(function (request$$1, response) {
+                handleRequest(request$$1, response, proxyConfig.defaultFile || "");
+            }).listen(proxyConfig.serverPort);
+            console.log("http server start succesfully on port " + proxyConfig.serverPort + " !");
+        }
+        var _proxy = proxyConfig.proxy;
+        server = require('http').createServer(function (req, res) {
+
+            // 在这里可以自定义你的路由分发
+            var host = req.headers.host,
+                rurl = req.url,
+                ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+            console.log("");
+            console.log('client ip: '.blue + ip + ' , host: '.green + host);
+            console.log("request URL: ".cyan + rurl);
+            var p = "";
+            _proxy.forEach(function (_p) {
+                var rule = new RegExp(_p.path);
+                if (rule.exec(rurl) && _p.path) {
+                    p = _p;
                 }
-                getData(_data).then(function (value) {
+            });
+            console.log(p);
+            if (p) {
 
-                    var callbackName = new RegExp("callback=(.*)&", "g").exec(req.url);
-                    if (callbackName && callbackName[1]) {
-                        console.log("jsonp match given data! ".red);
-                        res.writeHead(200, {
-                            'Content-Type': 'application/json',
-                            'Access-Control-Allow-Origin': p.origin,
-                            'Access-Control-Allow-Credentials': true,
-                            'Access-Control-Allow-Headers':'Origin, X-Requested-With, Content-Type, Accept',
-                            'Access-Control-Allow-Methods': 'PUT,POST,GET,DELETE,OPTIONS'
-                        });
-                        res.end(callbackName[1] + "(" + JSON.stringify(value) + ")");
+                console.log("find rule for above url!".yellow);
+                if (p.data) {
+                    var _data = "";
+                    if (typeof p.data == 'object') {
+                        //如果 data值为 {xx:yy} 这种
+                        _data = JSON.stringify(p.data);
+                    } else if (typeof p.data == 'string' && p.data.match("{")) {
+                        //如果 data值为 ‘{xx:yy}’ 这种
+                        _data = p.data;
                     } else {
-                        console.log("ajax match given data! ".red);
-                        res.writeHead(200, {
-                            'Content-Type': 'application/json',
-                            'Access-Control-Allow-Origin': p.origin,
-                            'Access-Control-Allow-Credentials': true,
-                            'Access-Control-Allow-Headers':'Origin, X-Requested-With, Content-Type, Accept',
-                            'Access-Control-Allow-Methods': 'PUT,POST,GET,DELETE,OPTIONS'
-                        });
-                        res.end(JSON.stringify(value));
-
+                        //如果 data值为 “./data/.data.js” 这种
+                        _data = path.resolve(p.data);
                     }
-                });
+                    getData(_data).then(function (value) {
 
-            } else if (p.routeTo) {
-                if (p.routeTo.match("//")) {
-                    var targetUrl = p.routeTo;
-                    var callbackName = new RegExp("callback=(.*)&", "g").exec(req.url);
-                    if (callbackName && callbackName[1]) {
-                        console.log("jsonp match given data! ".red);
-                        targetUrl += "?callback=" + callbackName[1];
-                    }
-                    console.log("proxy to: ".red + targetUrl);
-                    // 设置req
-                    request(req, res, targetUrl);
-                } else {
-                    console.log("proxy to: ".red + proxyConfig[p.routeTo]);
-                    // 设置req
-                    req._originUrl = req.url;
-                    proxy.web(req, res, {
-                        target: proxyConfig[p.routeTo]
+                        var callbackName = new RegExp("callback=(.*)&", "g").exec(req.url);
+                        if (callbackName && callbackName[1]) {
+                            console.log("jsonp match given data! ".red);
+                            res.writeHead(200, {
+                                'Content-Type': 'application/json',
+                                'Access-Control-Allow-Origin': p.origin,
+                                'Access-Control-Allow-Credentials': true,
+                                'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+                                'Access-Control-Allow-Methods': 'PUT,POST,GET,DELETE,OPTIONS'
+                            });
+                            res.end(callbackName[1] + "(" + JSON.stringify(value) + ")");
+                        } else {
+                            console.log("ajax match given data! ".red);
+                            res.writeHead(200, {
+                                'Content-Type': 'application/json',
+                                'Access-Control-Allow-Origin': p.origin,
+                                'Access-Control-Allow-Credentials': true,
+                                'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+                                'Access-Control-Allow-Methods': 'PUT,POST,GET,DELETE,OPTIONS'
+                            });
+                            res.end(JSON.stringify(value));
+
+                        }
                     });
+
+                } else if (p.routeTo) {
+                    if (p.routeTo.match("//")) {
+                        var targetUrl = p.routeTo;
+                        var callbackName = new RegExp("callback=(.*)&", "g").exec(req.url);
+                        if (callbackName && callbackName[1]) {
+                            console.log("jsonp match given data! ".red);
+                            targetUrl += "?callback=" + callbackName[1];
+                        }
+                        console.log("proxy to: ".red + targetUrl);
+                        // 设置req
+                        request(req, res, targetUrl);
+                    } else {
+                        console.log("proxy to: ".red + proxyConfig[p.routeTo]);
+                        // 设置req
+                        req._originUrl = req.url;
+                        proxy.web(req, res, {
+                            target: proxyConfig[p.routeTo]
+                        });
+                    }
+                } else {
+                    request(req, res);
                 }
             } else {
                 request(req, res);
             }
-        } else {
-            request(req, res);
-        }
 
-    });
-    server.listen((port || proxyConfig.port));
-    server.on("connection", function (socket) {
-        sockets.push(socket);
-        socket.once("close", function () {
-            sockets.splice(sockets.indexOf(socket), 1);
         });
-    });
-    server.on('connect', function (cReq, cSock) {
-        console.log("");
-        console.log("connect ".yellow + cReq.url);
-        connect(cReq, cSock);
-    });
-    if (proxyConfig.httpsPort) {
-        httpsProxy(proxyConfig);
+        server.listen((port || proxyConfig.port));
+        server.on("connection", function (socket) {
+            sockets.push(socket);
+            socket.once("close", function () {
+                sockets.splice(sockets.indexOf(socket), 1);
+            });
+        });
+        server.on('connect', function (cReq, cSock) {
+            console.log("");
+            console.log("connect ".yellow + cReq.url);
+            connect(cReq, cSock);
+        });
+        if (proxyConfig.httpsPort) {
+            httpsProxy(proxyConfig);
+        }
+        console.log("proxy ajax server start succesfully on port " + (port || proxyConfig.port) + " !");
+
+    },
+        function (error) {
+            console.log(error);
+        });
+
+    //关闭之前，我们需要手动清理连接池中得socket对象
+    function closeServer() {
+        sockets.forEach(function (socket) {
+            socket.destroy();
+        });
+        server.close(function () {
+            console.log("close server, done!");
+            process.exit(1);
+        });
+        httpServer && httpServer.close();
     }
-    console.log("proxy ajax server start succesfully on port " + (port || proxyConfig.port) + " !");
-
-},
-    function (error) {
-        console.log(error);
+    process.on('exit', function () {
+        console.log("welcome back, have a nice day!");
     });
-
-//关闭之前，我们需要手动清理连接池中得socket对象
-function closeServer() {
-    sockets.forEach(function (socket) {
-        socket.destroy();
-    });
-    server.close(function () {
-        console.log("close server, done!");
+    process.on('SIGINT', function () {
+        closeServer();
         process.exit(1);
     });
+};
+
+// import url from "url";
+var version = pjson.version;
+
+opts.parse([{
+    short: "v",
+    long: "version",
+    description: "Show the version",
+    required: false,
+    callback: function () {
+        console.log(version);
+        return process.exit(1);
+    }
+}, {
+    short: "p",
+    long: "port",
+    description: "Specify the port",
+    value: true,
+    required: false
+}].reverse(), true);
+
+var port = opts.get('port');
+
+var configFilePath = path.resolve(process.argv[2] || "./.proxy-ajax.config.js");
+if (process.argv[2] == "-p") {
+    configFilePath = path.resolve("./.proxy-ajax.config.js");
 }
-process.on('exit', function () {
-    console.log("welcome back, have a nice day!");
-});
-process.on('SIGINT', function () {
-    closeServer();
-    process.exit(1);
-});
+proxy$1(configFilePath, port);

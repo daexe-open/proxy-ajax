@@ -20,22 +20,22 @@ cert.validity.notAfter = new Date();
 cert.validity.notAfter.setFullYear(cert.validity.notAfter.getFullYear() + 20);
 var attrs = [{
     name: 'commonName',
-    value: '127.0.0.1'
+    value: '*.tmall.com'
 }, {
     name: 'countryName',
     value: 'CN'
 }, {
     shortName: 'ST',
-    value: 'localhost'
+    value: 'ZJ'
 }, {
     name: 'localityName',
-    value: 'HangZhou'
+    value: 'HZ'
 }, {
     name: 'organizationName',
-    value: 'localhost'
+    value: 'Alibaba'
 }, {
     shortName: 'OU',
-    value: 'haomou.chh'
+    value: 'FE'
 }];
 cert.setSubject(attrs);
 cert.setIssuer(attrs);

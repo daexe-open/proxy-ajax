@@ -15,6 +15,7 @@ proxyServer.on('proxyReq', function (proxyReq, req, res, options) {
 });
 
 proxyServer.on('proxyRes', function (proxyRes, req, res) {
+    
     proxyRes.headers['Access-Control-Allow-Origin'] = '*';
     proxyRes.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept';
     proxyRes.headers['Access-Control-Allow-Methods'] = 'PUT,POST,GET,DELETE,OPTIONS';
@@ -41,7 +42,6 @@ export default function (proxyConfig) {
         rejectUnauthorized: false
     }
     https.createServer(SECURE_OPTIONS, function (req, res) {
-
         // 在这里可以自定义你的路由分发
         var host = req.headers.host,
             rurl = "https://" + req.headers.host + req.url,
@@ -56,7 +56,7 @@ export default function (proxyConfig) {
             }
         });
         if (p) {
-            console.log("find rule for above url!".yellow)
+            console.log("find rule for above url!".yellow);
             if (p.data) {
                 //jsonp
                 let callbackName = new RegExp("callback=(.*)&", "g").exec(req.url);

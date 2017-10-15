@@ -5,39 +5,12 @@ import {
 import {
     resolve
 } from "path";
-// import url from "url";
-import pjson from "pjson";
 import httpProxy from 'http-proxy';
 import fs from 'fs';
 import httpsProxy from './httpsProxy'
-import { request, connect } from "./util"
+import { request, connect, handleRequest } from "./util"
 import colors from 'colors'
-let version = pjson.version;
-
-parse([{
-    short: "v",
-    long: "version",
-    description: "Show the version",
-    required: false,
-    callback: function () {
-        console.log(version);
-        return process.exit(1);
-    }
-}, {
-    short: "p",
-    long: "port",
-    description: "Specify the port",
-    value: true,
-    required: false
-}].reverse(), true);
-
-let port = get('port');
-
-let configFilePath = resolve(process.argv[2] || "./.proxy-ajax.config.js");
-if (process.argv[2] == "-p") {
-    configFilePath = resolve("./.proxy-ajax.config.js");
-}
-let server;
+let server, httpServer;
 // 管理连接
 let sockets = [];
 // 新建一个代理 Proxy Server 对象
@@ -94,134 +67,145 @@ function getData(configFilePath) {
         }
     });
 }
-//根据配置初始化代理
-getData(configFilePath).then(function (value) {
 
-    let proxyConfig = (typeof value == "object") ? value : JSON.parse(value);
-    proxyConfig = proxyConfig.proxyConfig || proxyConfig;
-    let _proxy = proxyConfig.proxy;
-    server = require('http').createServer(function (req, res) {
+export default function (configFilePath, port) {
+    //根据配置初始化代理
+    getData(configFilePath).then(function (value) {
 
-        // 在这里可以自定义你的路由分发
-        var host = req.headers.host,
-            rurl = req.url,
-            ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-        console.log("");
-        console.log('client ip: '.blue + ip + ' , host: '.green + host);
-        console.log("request URL: ".cyan + rurl);
-        let p = "";
-        _proxy.forEach(function (_p) {
-            var rule = new RegExp(_p.path);
-            if (rule.exec(rurl) && _p.path) {
-                p = _p;
-            }
-        });
-        console.log(p);
-        if (p) {
+        let proxyConfig = (typeof value == "object") ? value : JSON.parse(value);
+        proxyConfig = proxyConfig.proxyConfig || proxyConfig;
 
-            console.log("find rule for above url!".yellow)
-            if (p.data) {
-                let _data = "";
-                if (typeof p.data == 'object') {
-                    //如果 data值为 {xx:yy} 这种
-                    _data = JSON.stringify(p.data);
-                } else if (typeof p.data == 'string' && p.data.match("{")) {
-                    //如果 data值为 ‘{xx:yy}’ 这种
-                    _data = p.data;
-                } else {
-                    //如果 data值为 “./data/.data.js” 这种
-                    _data = resolve(p.data)
+        if (proxyConfig.serverPort) {
+            httpServer = require('http').createServer(function (request, response) {
+                handleRequest(request, response, proxyConfig.defaultFile || "")
+            }).listen(proxyConfig.serverPort);
+            console.log("http server start succesfully on port " + proxyConfig.serverPort + " !");
+        }
+        let _proxy = proxyConfig.proxy;
+        server = require('http').createServer(function (req, res) {
+
+            // 在这里可以自定义你的路由分发
+            var host = req.headers.host,
+                rurl = req.url,
+                ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+            console.log("");
+            console.log('client ip: '.blue + ip + ' , host: '.green + host);
+            console.log("request URL: ".cyan + rurl);
+            let p = "";
+            _proxy.forEach(function (_p) {
+                var rule = new RegExp(_p.path);
+                if (rule.exec(rurl) && _p.path) {
+                    p = _p;
                 }
-                getData(_data).then(function (value) {
+            });
+            console.log(p);
+            if (p) {
 
-                    let callbackName = new RegExp("callback=(.*)&", "g").exec(req.url);
-                    if (callbackName && callbackName[1]) {
-                        console.log("jsonp match given data! ".red);
-                        res.writeHead(200, {
-                            'Content-Type': 'application/json',
-                            'Access-Control-Allow-Origin': p.origin,
-                            'Access-Control-Allow-Credentials': true,
-                            'Access-Control-Allow-Headers':'Origin, X-Requested-With, Content-Type, Accept',
-                            'Access-Control-Allow-Methods': 'PUT,POST,GET,DELETE,OPTIONS'
-                        });
-                        res.end(callbackName[1] + "(" + JSON.stringify(value) + ")");
+                console.log("find rule for above url!".yellow)
+                if (p.data) {
+                    let _data = "";
+                    if (typeof p.data == 'object') {
+                        //如果 data值为 {xx:yy} 这种
+                        _data = JSON.stringify(p.data);
+                    } else if (typeof p.data == 'string' && p.data.match("{")) {
+                        //如果 data值为 ‘{xx:yy}’ 这种
+                        _data = p.data;
                     } else {
-                        console.log("ajax match given data! ".red);
-                        res.writeHead(200, {
-                            'Content-Type': 'application/json',
-                            'Access-Control-Allow-Origin': p.origin,
-                            'Access-Control-Allow-Credentials': true,
-                            'Access-Control-Allow-Headers':'Origin, X-Requested-With, Content-Type, Accept',
-                            'Access-Control-Allow-Methods': 'PUT,POST,GET,DELETE,OPTIONS'
+                        //如果 data值为 “./data/.data.js” 这种
+                        _data = resolve(p.data)
+                    }
+                    getData(_data).then(function (value) {
+
+                        let callbackName = new RegExp("callback=(.*)&", "g").exec(req.url);
+                        if (callbackName && callbackName[1]) {
+                            console.log("jsonp match given data! ".red);
+                            res.writeHead(200, {
+                                'Content-Type': 'application/json',
+                                'Access-Control-Allow-Origin': p.origin,
+                                'Access-Control-Allow-Credentials': true,
+                                'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+                                'Access-Control-Allow-Methods': 'PUT,POST,GET,DELETE,OPTIONS'
+                            });
+                            res.end(callbackName[1] + "(" + JSON.stringify(value) + ")");
+                        } else {
+                            console.log("ajax match given data! ".red);
+                            res.writeHead(200, {
+                                'Content-Type': 'application/json',
+                                'Access-Control-Allow-Origin': p.origin,
+                                'Access-Control-Allow-Credentials': true,
+                                'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+                                'Access-Control-Allow-Methods': 'PUT,POST,GET,DELETE,OPTIONS'
+                            });
+                            res.end(JSON.stringify(value));
+
+                        }
+                    })
+
+                } else if (p.routeTo) {
+                    if (p.routeTo.match("//")) {
+                        let targetUrl = p.routeTo;
+                        let callbackName = new RegExp("callback=(.*)&", "g").exec(req.url);
+                        if (callbackName && callbackName[1]) {
+                            console.log("jsonp match given data! ".red);
+                            targetUrl += "?callback=" + callbackName[1];
+                        }
+                        console.log("proxy to: ".red + targetUrl);
+                        // 设置req
+                        request(req, res, targetUrl)
+                    } else {
+                        console.log("proxy to: ".red + proxyConfig[p.routeTo]);
+                        // 设置req
+                        req._originUrl = req.url;
+                        proxy.web(req, res, {
+                            target: proxyConfig[p.routeTo]
                         });
-                        res.end(JSON.stringify(value));
-
                     }
-                })
-
-            } else if (p.routeTo) {
-                if (p.routeTo.match("//")) {
-                    let targetUrl = p.routeTo;
-                    let callbackName = new RegExp("callback=(.*)&", "g").exec(req.url);
-                    if (callbackName && callbackName[1]) {
-                        console.log("jsonp match given data! ".red);
-                        targetUrl += "?callback=" + callbackName[1];
-                    }
-                    console.log("proxy to: ".red + targetUrl);
-                    // 设置req
-                    request(req, res, targetUrl)
                 } else {
-                    console.log("proxy to: ".red + proxyConfig[p.routeTo]);
-                    // 设置req
-                    req._originUrl = req.url;
-                    proxy.web(req, res, {
-                        target: proxyConfig[p.routeTo]
-                    });
+                    request(req, res)
                 }
             } else {
                 request(req, res)
             }
-        } else {
-            request(req, res)
-        }
 
-    });
-    server.listen((port || proxyConfig.port));
-    server.on("connection", function (socket) {
-        sockets.push(socket);
-        socket.once("close", function () {
-            sockets.splice(sockets.indexOf(socket), 1);
         });
-    });
-    server.on('connect', function (cReq, cSock) {
-        console.log("");
-        console.log("connect ".yellow + cReq.url);
-        connect(cReq, cSock);
-    });
-    if (proxyConfig.httpsPort) {
-        httpsProxy(proxyConfig);
+        server.listen((port || proxyConfig.port));
+        server.on("connection", function (socket) {
+            sockets.push(socket);
+            socket.once("close", function () {
+                sockets.splice(sockets.indexOf(socket), 1);
+            });
+        });
+        server.on('connect', function (cReq, cSock) {
+            console.log("");
+            console.log("connect ".yellow + cReq.url);
+            connect(cReq, cSock);
+        });
+        if (proxyConfig.httpsPort) {
+            httpsProxy(proxyConfig);
+        }
+        console.log("proxy ajax server start succesfully on port " + (port || proxyConfig.port) + " !");
+
+    },
+        function (error) {
+            console.log(error)
+        });
+
+    //关闭之前，我们需要手动清理连接池中得socket对象
+    function closeServer() {
+        sockets.forEach(function (socket) {
+            socket.destroy();
+        });
+        server.close(function () {
+            console.log("close server, done!");
+            process.exit(1);
+        });
+        httpServer && httpServer.close();
     }
-    console.log("proxy ajax server start succesfully on port " + (port || proxyConfig.port) + " !");
-
-},
-    function (error) {
-        console.log(error)
+    process.on('exit', function () {
+        console.log("welcome back, have a nice day!");
     });
-
-//关闭之前，我们需要手动清理连接池中得socket对象
-function closeServer() {
-    sockets.forEach(function (socket) {
-        socket.destroy();
-    });
-    server.close(function () {
-        console.log("close server, done!");
+    process.on('SIGINT', function () {
+        closeServer();
         process.exit(1);
     });
 }
-process.on('exit', function () {
-    console.log("welcome back, have a nice day!");
-});
-process.on('SIGINT', function () {
-    closeServer();
-    process.exit(1);
-});
