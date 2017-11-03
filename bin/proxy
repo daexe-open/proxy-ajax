@@ -111,7 +111,10 @@ var handleRequest = function (request, response, defa) {
     });
 
 };
-
+var getHost = function getHost(_url) {
+    var u = url.parse(_url);
+    return u.hostname;
+};
 var request = function request(cReq, cRes, rqurl) {
     var u = url.parse(rqurl || cReq.url);
     var options = {
@@ -388,6 +391,7 @@ var proxy$1 = function (configFilePath, port) {
                         console.log("proxy to: ".red + proxyConfig[p.routeTo]);
                         // 设置req
                         req._originUrl = req.url;
+                        req.headers.host = getHost(proxyConfig[p.routeTo]);
                         proxy.web(req, res, {
                             target: proxyConfig[p.routeTo]
                         });

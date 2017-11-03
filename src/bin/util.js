@@ -104,7 +104,10 @@ export let handleRequest = function (request, response, defa) {
     });
 
 }
-
+export let getHost = function getHost(_url) {
+    var u = url.parse(_url);
+    return u.hostname;
+}
 export let request = function request(cReq, cRes, rqurl) {
     var u = url.parse(rqurl || cReq.url);
     var options = {

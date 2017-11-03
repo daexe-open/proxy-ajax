@@ -8,7 +8,7 @@ import {
 import httpProxy from 'http-proxy';
 import fs from 'fs';
 import httpsProxy from './httpsProxy'
-import { request, connect, handleRequest } from "./util"
+import { request, connect, handleRequest,getHost } from "./util"
 import colors from 'colors'
 let server, httpServer;
 // 管理连接
@@ -156,6 +156,7 @@ export default function (configFilePath, port) {
                         console.log("proxy to: ".red + proxyConfig[p.routeTo]);
                         // 设置req
                         req._originUrl = req.url;
+                        req.headers.host = getHost(proxyConfig[p.routeTo]);
                         proxy.web(req, res, {
                             target: proxyConfig[p.routeTo]
                         });
