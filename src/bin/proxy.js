@@ -86,7 +86,7 @@ export default function (configFilePath, port) {
 
             // 在这里可以自定义你的路由分发
             var host = req.headers.host,
-                rurl = req.url,
+                rurl = "http://"+req.headers.host+req.url,
                 ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
             console.log("");
             console.log('client ip: '.blue + ip + ' , host: '.green + host);
