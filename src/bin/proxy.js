@@ -121,7 +121,7 @@ export default function (configFilePath, port) {
                             console.log("jsonp match given data! ".red);
                             res.writeHead(200, {
                                 'Content-Type': 'application/json',
-                                'Access-Control-Allow-Origin': p.origin,
+                                'Access-Control-Allow-Origin': p.origin || "*",
                                 'Access-Control-Allow-Credentials': true,
                                 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
                                 'Access-Control-Allow-Methods': 'PUT,POST,GET,DELETE,OPTIONS'
@@ -131,7 +131,7 @@ export default function (configFilePath, port) {
                             console.log("ajax match given data! ".red);
                             res.writeHead(200, {
                                 'Content-Type': 'application/json',
-                                'Access-Control-Allow-Origin': p.origin,
+                                'Access-Control-Allow-Origin': p.origin || "*",
                                 'Access-Control-Allow-Credentials': true,
                                 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
                                 'Access-Control-Allow-Methods': 'PUT,POST,GET,DELETE,OPTIONS'
