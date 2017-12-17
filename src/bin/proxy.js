@@ -124,7 +124,8 @@ export default function (configFilePath, port) {
                                 'Access-Control-Allow-Origin': p.origin || "*",
                                 'Access-Control-Allow-Credentials': true,
                                 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
-                                'Access-Control-Allow-Methods': 'PUT,POST,GET,DELETE,OPTIONS'
+                                'Access-Control-Allow-Methods': 'PUT,POST,GET,DELETE,OPTIONS',
+                                'set-cookie': p.cookie || ""
                             });
                             res.end(callbackName[1] + "(" + JSON.stringify(value) + ")");
                         } else {
@@ -134,7 +135,8 @@ export default function (configFilePath, port) {
                                 'Access-Control-Allow-Origin': p.origin || "*",
                                 'Access-Control-Allow-Credentials': true,
                                 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
-                                'Access-Control-Allow-Methods': 'PUT,POST,GET,DELETE,OPTIONS'
+                                'Access-Control-Allow-Methods': 'PUT,POST,GET,DELETE,OPTIONS',
+                                'set-cookie': p.cookie || ""
                             });
                             res.end(JSON.stringify(value));
 
